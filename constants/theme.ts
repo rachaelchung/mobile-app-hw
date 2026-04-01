@@ -1,53 +1,35 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
+export const colors = {
+  bgShell: "#EDE8F5",       // soft plastic gray-lavender — main background
+  bgPanel: "#F5F2FC",       // lighter panel / card surfaces
+  bgDeep: "#E2DAEF",        // inset areas like text inputs
+  border: "#C8B4E8",        // soft purple border
 
-import { Platform } from 'react-native';
+  hotPink: "#FF3DA0",       // primary CTA — shutter, save buttons
+  bubblegumPink: "#FFB3D9", // secondary pink highlight
+  lilac: "#D4A8F0",         // lilac accent
+  lavender: "#B8A8E8",      // lavender accent
+  softPurple: "#9B7EC8",    // soft purple — muted emphasis
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+  holoSilver: "#C8C4DC",    // holographic silver — decorative borders
+  limeAccent: "#AAEF45",    // lime pop — REC indicator, surprises
+  babyBlue: "#7EC8F8",      // baby blue pop — lib/secondary icon
 
-export const Colors = {
-  light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
-  },
-  dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
-  },
+  textPrimary: "#2D1F5E",   // deep purple — primary text on light bg
+  textMuted: "#9B8CB8",     // muted purple-gray
+
+  error: "#FF4D6D",         // pinkish-red error
 };
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-    serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
-    mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-  },
-});
+export const fonts = {
+  pixel: "PressStart2P_400Regular",  // chunky pixel — brand title, timestamps, metadata
+  rounded: "Nunito_400Regular",      // bubbly rounded — general UI text
+  roundedBold: "Nunito_700Bold",     // bubbly rounded bold — emphasized UI
+  handwritten: "Caveat_400Regular",  // handwritten scrawl — sticker-style field labels
+};
+
+export const spacing = {
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+};

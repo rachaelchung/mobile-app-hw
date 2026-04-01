@@ -1,24 +1,49 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import {
+  Caveat_400Regular,
+  useFonts as useCaveatFonts,
+} from "@expo-google-fonts/caveat";
+import {
+  Nunito_400Regular,
+  Nunito_700Bold,
+  useFonts as useNunitoFonts,
+} from "@expo-google-fonts/nunito";
+import { PressStart2P_400Regular, useFonts } from "@expo-google-fonts/press-start-2p";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { MementosProvider } from "@/context/MementosContext";
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const [pixelLoaded] = useFonts({ PressStart2P_400Regular });
+  const [nunitoLoaded] = useNunitoFonts({ Nunito_400Regular, Nunito_700Bold });
+  const [caveatLoaded] = useCaveatFonts({ Caveat_400Regular });
+
+  const loaded = pixelLoaded && nunitoLoaded && caveatLoaded;
+
+  useEffect(() => {
+    if (loaded) {
+      void SplashScreen.hideAsync();
+    }
+  }, [loaded]);
+
+  if (!loaded) {
+    return null;
+  }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <MementosProvider>
+        <StatusBar style="dark" />
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="(tabs)" />
+        </Stack>
+      </MementosProvider>
+    </SafeAreaProvider>
   );
 }

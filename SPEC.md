@@ -9,6 +9,7 @@ This is a memory collection app. The premise of the app, is sometimes you have s
 ## Core Features
 
 - Create entries: you can take a photo, and then promptly attach a title and note to it and store it to your journal. Or you can manually create an entry by selecting a photo from your library.
+- Camera facing: on the camera screen you can switch between the back (world-facing) and front (selfie) cameras using the flip control to the right of the shutter.
 - Persistence: entries store and load even after quit and re-launch
 - View entries: A clean and cute way to view all entries
 - View detail: Select each photo from the entries view to view the title and note that go along with it. Along with the date.
@@ -19,7 +20,7 @@ This is a memory collection app. The premise of the app, is sometimes you have s
 
 | Screen | Purpose | Navigation |
 |--------|---------|------------|
-| Camera (index.tsx) | Camera functionality using expo-camera. There is an aesthetic overlay on the camera screen | Bottom screen menu, on the left|
+| Camera (index.tsx) | Camera functionality using expo-camera, including a control to switch between front- and back-facing cameras. There is an aesthetic overlay on the camera screen | Bottom screen menu, on the left|
 | Mementos (mementos.tsx) | A place to see all moments images and notes stored in one place. Clicking on a memory brings up the info in a modal on the app while the screen gallery just displays each moment as an individual photo | Bottom screen menu, on the right |
 
 
@@ -91,4 +92,5 @@ You are not meant to replace images in an existing memento.
 - If both not allowed, display error message "allow access to camera/library to continue"
 - gallery mementos are sorted by date (NOT createdAt), with the newest memories appearing at the top
 - user can always open mementos and see past entries; new mementos require at least one permission
+- camera screen includes a flip control to switch between front- and back-facing cameras (when camera permission is granted)
 

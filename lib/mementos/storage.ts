@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system/legacy";
 
+import { applyDigicamFilter } from "./photoFilter";
 import type { Memento, PersistedMementosState } from "./types";
 
 const STORAGE_KEY = "@remember_the_time_mementos_v1";
@@ -51,7 +52,11 @@ export async function copyPhotoToMementos(
 ): Promise<string> {
   await ensureMementosDir();
   const dest = `${mementosDirectoryUri()}/${id}.jpg`;
-  await FileSystem.copyAsync({ from: tempUri, to: dest });
+  const filteredUri = await applyDigicamFilter(tempUri);
+  await FileSystem.copyAsync({ from: filteredUri, to: dest });
+  if (filteredUri !== tempUri) {
+    await FileSystem.deleteAsync(filteredUri, { idempotent: true });
+  }
   return dest;
 }
 

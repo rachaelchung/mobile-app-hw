@@ -1,9 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
+import * as Linking from "expo-linking";
 import { useCallback, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Pressable,
   StyleSheet,
   Text,
@@ -25,6 +27,7 @@ export default function CameraScreen() {
   const [libPermission, requestLibPermission] =
     ImagePicker.useMediaLibraryPermissions();
 
+  const [cameraFacing, setCameraFacing] = useState<"back" | "front">("back");
   const [cameraReady, setCameraReady] = useState(false);
   const [capturing, setCapturing] = useState(false);
   const [draftUri, setDraftUri] = useState<string | null>(null);
@@ -51,6 +54,51 @@ export default function CameraScreen() {
     }
   }, [libGranted, requestLibPermission]);
 
+  const showCameraErrorAlert = useCallback(
+    (msg: string) => {
+      const permissionHint = /permission|not granted|access denied|could not be rendered/i.test(
+        msg
+      );
+      Alert.alert("Camera", msg, [
+        { text: "OK", style: "cancel" },
+        ...(permissionHint
+          ? [
+              {
+                text: "Allow access",
+                onPress: () => {
+                  void requestCamPermission();
+                },
+              },
+              {
+                text: "Settings",
+                onPress: () => {
+                  void Linking.openSettings();
+                },
+              },
+            ]
+          : []),
+      ]);
+    },
+    [requestCamPermission]
+  );
+
+  const onCameraMountError = useCallback(
+    (event: { message: string }) => {
+      setCameraReady(false);
+      showCameraErrorAlert(
+        event.message || "The camera could not be started."
+      );
+    },
+    [showCameraErrorAlert]
+  );
+
+  const toggleCameraFacing = useCallback(() => {
+    if (!camGranted) return;
+    // Do not clear cameraReady here: on iOS, `onCameraReady` only runs after the
+    // initial session start, not when switching `facing` (lens swap only).
+    setCameraFacing((f) => (f === "back" ? "front" : "back"));
+  }, [camGranted]);
+
   const capturePhoto = useCallback(async () => {
     if (!camGranted || !cameraReady || capturing) return;
     setCapturing(true);
@@ -59,11 +107,18 @@ export default function CameraScreen() {
       if (photo?.uri) {
         setDraftUri(photo.uri);
         setFormOpen(true);
+      } else {
+        showCameraErrorAlert(
+          "Could not capture a photo. Try again or check camera access in Settings."
+        );
       }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      showCameraErrorAlert(msg);
     } finally {
       setCapturing(false);
     }
-  }, [camGranted, cameraReady, capturing]);
+  }, [camGranted, cameraReady, capturing, showCameraErrorAlert]);
 
   async function onSaveMemento(title: string, noteText: string) {
     if (!draftUri) return;
@@ -114,8 +169,9 @@ export default function CameraScreen() {
                   <CameraView
                     ref={camRef}
                     style={StyleSheet.absoluteFill}
-                    facing="back"
+                    facing={cameraFacing}
                     onCameraReady={() => setCameraReady(true)}
+                    onMountError={onCameraMountError}
                   />
                 ) : (
                   <View style={styles.noCam}>
@@ -176,14 +232,28 @@ export default function CameraScreen() {
                 )}
               </Pressable>
 
-              <View style={styles.sideBtn}>
+              <Pressable
+                onPress={toggleCameraFacing}
+                disabled={!camGranted}
+                accessibilityLabel={
+                  cameraFacing === "back"
+                    ? "Switch to front camera"
+                    : "Switch to back camera"
+                }
+                accessibilityRole="button"
+                style={({ pressed }) => [
+                  styles.sideBtn,
+                  styles.flipCamBtn,
+                  !camGranted && styles.disabledCtl,
+                  pressed && camGranted && styles.pressed,
+                ]}
+              >
                 <Ionicons
-                  name="save-outline"
+                  name="camera-reverse-outline"
                   size={22}
-                  color={colors.textMuted}
+                  color={colors.babyBlue}
                 />
-                <Text style={styles.sideLabelMuted}>AUTO</Text>
-              </View>
+              </Pressable>
             </View>
           </View>
 
@@ -320,14 +390,13 @@ const styles = StyleSheet.create({
     gap: 4,
     width: 72,
   },
+  flipCamBtn: {
+    minHeight: 44,
+    justifyContent: "center",
+  },
   sideLabel: {
     fontFamily: fonts.rounded,
     color: colors.babyBlue,
-    fontSize: 11,
-  },
-  sideLabelMuted: {
-    fontFamily: fonts.rounded,
-    color: colors.textMuted,
     fontSize: 11,
   },
   shutter: {

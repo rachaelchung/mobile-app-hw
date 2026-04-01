@@ -1,8 +1,12 @@
 import { Image } from "expo-image";
 import { useEffect, useState } from "react";
 import {
+  Keyboard,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -11,6 +15,9 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { colors, fonts, spacing } from "@/constants/theme";
+
+/** Matches backdrop; fills KeyboardAvoidingView padding gap so nothing shows through */
+const MODAL_OVERLAY = "rgba(45,31,94,0.80)";
 
 type Props = {
   visible: boolean;
@@ -58,71 +65,104 @@ export function SaveMementoModal({
       transparent
       onRequestClose={onClose}
     >
-      <View style={styles.backdrop}>
-        <View
-          style={[
-            styles.sheet,
-            { paddingBottom: Math.max(insets.bottom, spacing.md) },
-          ]}
-        >
-          <Text style={styles.header}>✦ new entry</Text>
-          {previewUri ? (
-            <Image
-              source={{ uri: previewUri }}
-              style={styles.preview}
-              contentFit="cover"
+      <KeyboardAvoidingView
+        style={[styles.kav, { backgroundColor: MODAL_OVERLAY }]}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        keyboardVerticalOffset={Platform.OS === "ios" ? insets.top : 0}
+      >
+        <View style={styles.backdrop}>
+          <ScrollView
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+            showsVerticalScrollIndicator={false}
+            bounces={false}
+            contentContainerStyle={styles.sheetScrollContent}
+          >
+            <Pressable
+              style={styles.sheetAboveTap}
+              onPress={Keyboard.dismiss}
+              accessibilityLabel="Dismiss keyboard"
+              accessibilityRole="button"
             />
-          ) : null}
-          <Text style={styles.label}>title *</Text>
-          <TextInput
-            value={title}
-            onChangeText={setTitle}
-            placeholder="Moment title"
-            placeholderTextColor={colors.textMuted}
-            style={styles.input}
-          />
-          <Text style={styles.label}>note (optional)</Text>
-          <TextInput
-            value={note}
-            onChangeText={setNote}
-            placeholder="A few words to remember…"
-            placeholderTextColor={colors.textMuted}
-            style={[styles.input, styles.noteInput]}
-            multiline
-          />
-          <View style={styles.row}>
-            <Pressable
-              onPress={onClose}
-              style={({ pressed }) => [styles.btn, pressed && styles.btnPressed]}
-            >
-              <Text style={styles.btnGhostText}>cancel</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => void handleSave()}
-              disabled={!canSave || saving}
-              style={({ pressed }) => [
-                styles.btn,
-                styles.btnPrimary,
-                (!canSave || saving) && styles.btnDisabled,
-                pressed && canSave && !saving && styles.btnPressed,
+            <View
+              style={[
+                styles.sheet,
+                { paddingBottom: Math.max(insets.bottom, spacing.md) },
               ]}
             >
-              <Text style={styles.btnPrimaryText}>
-                {saving ? "saving…" : "save ✦"}
-              </Text>
-            </Pressable>
-          </View>
+              <Text style={styles.header}>✦ new entry</Text>
+              {previewUri ? (
+                <Image
+                  source={{ uri: previewUri }}
+                  style={styles.preview}
+                  contentFit="cover"
+                />
+              ) : null}
+              <Text style={styles.label}>title *</Text>
+              <TextInput
+                value={title}
+                onChangeText={setTitle}
+                placeholder="Moment title"
+                placeholderTextColor={colors.textMuted}
+                style={styles.input}
+              />
+              <Text style={styles.label}>note (optional)</Text>
+              <TextInput
+                value={note}
+                onChangeText={setNote}
+                placeholder="A few words to remember…"
+                placeholderTextColor={colors.textMuted}
+                style={[styles.input, styles.noteInput]}
+                multiline
+              />
+              <View style={styles.row}>
+                <Pressable
+                  onPress={onClose}
+                  style={({ pressed }) => [
+                    styles.btn,
+                    pressed && styles.btnPressed,
+                  ]}
+                >
+                  <Text style={styles.btnGhostText}>cancel</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => void handleSave()}
+                  disabled={!canSave || saving}
+                  style={({ pressed }) => [
+                    styles.btn,
+                    styles.btnPrimary,
+                    (!canSave || saving) && styles.btnDisabled,
+                    pressed && canSave && !saving && styles.btnPressed,
+                  ]}
+                >
+                  <Text style={styles.btnPrimaryText}>
+                    {saving ? "saving…" : "save ✦"}
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          </ScrollView>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  kav: {
+    flex: 1,
+  },
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(45,31,94,0.80)",
+    backgroundColor: MODAL_OVERLAY,
+  },
+  sheetScrollContent: {
+    flexGrow: 1,
     justifyContent: "flex-end",
+  },
+  sheetAboveTap: {
+    flexGrow: 1,
+    minHeight: 48,
   },
   sheet: {
     backgroundColor: colors.bgPanel,

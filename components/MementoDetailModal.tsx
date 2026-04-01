@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import {
   Alert,
   Keyboard,
-  KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
@@ -12,16 +11,12 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  useWindowDimensions,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { colors, fonts, spacing } from "@/constants/theme";
 import type { Memento } from "@/lib/mementos/types";
-
-/** Matches backdrop; fills KeyboardAvoidingView padding gap so nothing shows through */
-const MODAL_OVERLAY = "rgba(45,31,94,0.80)";
 
 type Props = {
   visible: boolean;
@@ -42,7 +37,6 @@ export function MementoDetailModal({
   onDelete,
 }: Props) {
   const insets = useSafeAreaInsets();
-  const { height: windowHeight } = useWindowDimensions();
   const [title, setTitle] = useState("");
   const [note, setNote] = useState("");
   const [date, setDate] = useState(new Date());
@@ -108,10 +102,7 @@ export function MementoDetailModal({
 
   const canSave = title.trim().length > 0;
 
-  const cardMaxHeight = Math.min(
-    windowHeight * 0.9,
-    windowHeight - insets.top - insets.bottom - spacing.md * 2,
-  );
+  const scrollPadBottom = Math.max(insets.bottom, spacing.md) + spacing.lg;
 
   return (
     <Modal
@@ -120,175 +111,154 @@ export function MementoDetailModal({
       transparent
       onRequestClose={onClose}
     >
-      <KeyboardAvoidingView
-        style={[styles.kav, { backgroundColor: MODAL_OVERLAY }]}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={Platform.OS === "ios" ? insets.top : 0}
-      >
-        <View style={styles.backdrop}>
-          <ScrollView
-            keyboardShouldPersistTaps="handled"
-            keyboardDismissMode="on-drag"
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.cardScrollContent}
-          >
-            <Pressable
-              style={styles.cardOutsideTap}
-              onPress={Keyboard.dismiss}
-              accessibilityLabel="Dismiss keyboard"
-              accessibilityRole="button"
-            />
-            <View
-              style={[
-                styles.cardShell,
-                {
-                  marginBottom: Math.max(insets.bottom, spacing.md),
-                  maxHeight: cardMaxHeight,
-                },
-              ]}
-            >
-              <View style={styles.card}>
-                <ScrollView
-                  keyboardShouldPersistTaps="handled"
-                  keyboardDismissMode="on-drag"
-                  showsVerticalScrollIndicator
-                  nestedScrollEnabled={Platform.OS === "android"}
-                  style={[
-                    styles.cardScroll,
-                    { maxHeight: cardMaxHeight - 6 },
-                  ]}
-                  contentContainerStyle={styles.cardInnerContent}
-                >
-                  <Text style={styles.header}>✦ memory file #{m.id}</Text>
-                  <Image
-                    source={{ uri: m.photoPath }}
-                    style={styles.preview}
-                    contentFit="cover"
-                  />
-                  <Text style={styles.meta}>
-                    saved {new Date(m.createdAt).toLocaleString()}
-                  </Text>
+      <View style={styles.chrome}>
+        <ScrollView
+          style={styles.fill}
+          contentContainerStyle={[
+            styles.scrollContent,
+            {
+              paddingTop: insets.top + spacing.md,
+              paddingBottom: scrollPadBottom,
+            },
+          ]}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          showsVerticalScrollIndicator
+          automaticallyAdjustKeyboardInsets
+        >
+          <Pressable
+            style={styles.dismissSpacer}
+            onPress={Keyboard.dismiss}
+            accessibilityLabel="Dismiss keyboard"
+            accessibilityRole="button"
+          />
+          <View style={styles.cardShell}>
+            <View style={styles.card}>
+              <Text style={styles.header}>✦ memory file #{m.id}</Text>
+              <Image
+                source={{ uri: m.photoPath }}
+                style={styles.preview}
+                contentFit="cover"
+              />
+              <Text style={styles.meta}>
+                saved {new Date(m.createdAt).toLocaleString()}
+              </Text>
 
-                  <Text style={styles.label}>title</Text>
-                  <TextInput
-                    value={title}
-                    onChangeText={setTitle}
-                    style={styles.input}
-                    placeholderTextColor={colors.textMuted}
-                  />
+              <Text style={styles.label}>title</Text>
+              <TextInput
+                value={title}
+                onChangeText={setTitle}
+                style={styles.input}
+                placeholderTextColor={colors.textMuted}
+              />
 
-                  <Text style={styles.label}>when (display date)</Text>
-                  <Pressable
-                    onPress={() => setShowPicker((s) => !s)}
-                    style={({ pressed }) => [
-                      styles.dateBtn,
-                      pressed && { opacity: 0.8 },
-                    ]}
-                  >
-                    <Text style={styles.dateBtnText}>{displayDate}</Text>
-                    <Text style={styles.hint}>tap to change ✦</Text>
-                  </Pressable>
-                  {showPicker ? (
-                    <View>
-                      <DateTimePicker
-                        value={date}
-                        mode="date"
-                        display={Platform.OS === "ios" ? "spinner" : "default"}
-                        onChange={(ev, selected) => {
-                          if (ev.type === "dismissed") {
-                            setShowPicker(false);
-                            return;
-                          }
-                          if (selected) setDate(selected);
-                          if (Platform.OS === "android") setShowPicker(false);
-                        }}
-                      />
-                      {Platform.OS === "ios" ? (
-                        <Pressable
-                          onPress={() => setShowPicker(false)}
-                          style={styles.iosPickerDone}
-                        >
-                          <Text style={styles.iosPickerDoneText}>done ✓</Text>
-                        </Pressable>
-                      ) : null}
-                    </View>
+              <Text style={styles.label}>when (display date)</Text>
+              <Pressable
+                onPress={() => setShowPicker((s) => !s)}
+                style={({ pressed }) => [
+                  styles.dateBtn,
+                  pressed && { opacity: 0.8 },
+                ]}
+              >
+                <Text style={styles.dateBtnText}>{displayDate}</Text>
+                <Text style={styles.hint}>tap to change ✦</Text>
+              </Pressable>
+              {showPicker ? (
+                <View>
+                  <DateTimePicker
+                    value={date}
+                    mode="date"
+                    display={Platform.OS === "ios" ? "spinner" : "default"}
+                    onChange={(ev, selected) => {
+                      if (ev.type === "dismissed") {
+                        setShowPicker(false);
+                        return;
+                      }
+                      if (selected) setDate(selected);
+                      if (Platform.OS === "android") setShowPicker(false);
+                    }}
+                  />
+                  {Platform.OS === "ios" ? (
+                    <Pressable
+                      onPress={() => setShowPicker(false)}
+                      style={styles.iosPickerDone}
+                    >
+                      <Text style={styles.iosPickerDoneText}>done ✓</Text>
+                    </Pressable>
                   ) : null}
+                </View>
+              ) : null}
 
-                  <Text style={styles.label}>note</Text>
-                  <TextInput
-                    value={note}
-                    onChangeText={setNote}
-                    style={[styles.input, styles.noteInput]}
-                    multiline
-                    placeholderTextColor={colors.textMuted}
-                  />
+              <Text style={styles.label}>note</Text>
+              <TextInput
+                value={note}
+                onChangeText={setNote}
+                style={[styles.input, styles.noteInput]}
+                multiline
+                placeholderTextColor={colors.textMuted}
+              />
 
-                  <View style={styles.row}>
-                    <Pressable
-                      onPress={onClose}
-                      style={({ pressed }) => [
-                        styles.btn,
-                        pressed && styles.pressed,
-                      ]}
-                    >
-                      <Text style={styles.btnGhost}>close</Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={() => void handleSave()}
-                      disabled={!canSave || saving}
-                      style={({ pressed }) => [
-                        styles.btn,
-                        styles.primary,
-                        (!canSave || saving) && styles.disabled,
-                        pressed && canSave && !saving && styles.pressed,
-                      ]}
-                    >
-                      <Text style={styles.btnPrimaryText}>
-                        {saving ? "…" : "save ✦"}
-                      </Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={confirmDelete}
-                      style={({ pressed }) => [
-                        styles.btn,
-                        styles.danger,
-                        pressed && styles.pressed,
-                      ]}
-                    >
-                      <Text style={styles.btnDanger}>delete</Text>
-                    </Pressable>
-                  </View>
-                </ScrollView>
+              <View style={styles.row}>
+                <Pressable
+                  onPress={onClose}
+                  style={({ pressed }) => [styles.btn, pressed && styles.pressed]}
+                >
+                  <Text style={styles.btnGhost}>close</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => void handleSave()}
+                  disabled={!canSave || saving}
+                  style={({ pressed }) => [
+                    styles.btn,
+                    styles.primary,
+                    (!canSave || saving) && styles.disabled,
+                    pressed && canSave && !saving && styles.pressed,
+                  ]}
+                >
+                  <Text style={styles.btnPrimaryText}>
+                    {saving ? "…" : "save ✦"}
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={confirmDelete}
+                  style={({ pressed }) => [
+                    styles.btn,
+                    styles.danger,
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <Text style={styles.btnDanger}>delete</Text>
+                </Pressable>
               </View>
             </View>
-            <Pressable
-              style={styles.cardOutsideTap}
-              onPress={Keyboard.dismiss}
-              accessibilityLabel="Dismiss keyboard"
-              accessibilityRole="button"
-            />
-          </ScrollView>
-        </View>
-      </KeyboardAvoidingView>
+          </View>
+          <Pressable
+            style={styles.dismissSpacer}
+            onPress={Keyboard.dismiss}
+            accessibilityLabel="Dismiss keyboard"
+            accessibilityRole="button"
+          />
+        </ScrollView>
+      </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  kav: {
+  chrome: {
+    flex: 1,
+    backgroundColor: colors.bgShell,
+  },
+  fill: {
     flex: 1,
   },
-  backdrop: {
-    flex: 1,
-    backgroundColor: MODAL_OVERLAY,
-  },
-  cardScrollContent: {
+  scrollContent: {
     flexGrow: 1,
-    padding: spacing.md,
+    paddingHorizontal: spacing.md,
   },
-  cardOutsideTap: {
+  dismissSpacer: {
     flexGrow: 1,
-    minHeight: 32,
+    minHeight: 28,
   },
   cardShell: {
     borderRadius: 24,
@@ -302,12 +272,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgPanel,
     borderWidth: 3,
     borderColor: colors.lilac,
-    overflow: "hidden",
-  },
-  cardScroll: {
-    flexGrow: 0,
-  },
-  cardInnerContent: {
     padding: spacing.md,
     paddingBottom: spacing.lg,
   },

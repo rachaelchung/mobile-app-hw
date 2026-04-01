@@ -16,9 +16,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { colors, fonts, spacing } from "@/constants/theme";
 
-/** Matches backdrop; fills KeyboardAvoidingView padding gap so nothing shows through */
-const MODAL_OVERLAY = "rgba(45,31,94,0.80)";
-
 type Props = {
   visible: boolean;
   previewUri: string | null;
@@ -66,7 +63,7 @@ export function SaveMementoModal({
       onRequestClose={onClose}
     >
       <KeyboardAvoidingView
-        style={[styles.kav, { backgroundColor: MODAL_OVERLAY }]}
+        style={styles.kav}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         keyboardVerticalOffset={Platform.OS === "ios" ? insets.top : 0}
       >
@@ -151,10 +148,11 @@ export function SaveMementoModal({
 const styles = StyleSheet.create({
   kav: {
     flex: 1,
+    backgroundColor: colors.bgShell,
   },
   backdrop: {
     flex: 1,
-    backgroundColor: MODAL_OVERLAY,
+    backgroundColor: colors.bgShell,
   },
   sheetScrollContent: {
     flexGrow: 1,

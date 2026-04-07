@@ -10,6 +10,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -30,6 +31,7 @@ export function SaveMementoModal({
   onSubmit,
 }: Props) {
   const insets = useSafeAreaInsets();
+  const { height: windowHeight } = useWindowDimensions();
   const [title, setTitle] = useState("");
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
@@ -43,6 +45,9 @@ export function SaveMementoModal({
   }, [visible, previewUri]);
 
   const canSave = title.trim().length > 0;
+
+  /** Pinned to full-screen root (not the KAV content box) so it doesn’t jump when the keyboard opens */
+  const bottomWashHeight = Math.max(Math.round(windowHeight * 0.52), 260);
 
   async function handleSave() {
     if (!canSave || saving) return;
@@ -62,13 +67,18 @@ export function SaveMementoModal({
       transparent
       onRequestClose={onClose}
     >
-      <KeyboardAvoidingView
-        style={styles.kav}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={Platform.OS === "ios" ? insets.top : 0}
-      >
-        <View style={styles.backdrop}>
+      <View style={styles.modalRoot}>
+        <View
+          pointerEvents="none"
+          style={[styles.bottomWash, { height: bottomWashHeight }]}
+        />
+        <KeyboardAvoidingView
+          style={styles.kav}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          keyboardVerticalOffset={Platform.OS === "ios" ? insets.top : 0}
+        >
           <ScrollView
+            style={styles.scrollLayer}
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="on-drag"
             showsVerticalScrollIndicator={false}
@@ -139,20 +149,34 @@ export function SaveMementoModal({
               </View>
             </View>
           </ScrollView>
-        </View>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  modalRoot: {
+    flex: 1,
+  },
+  bottomWash: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: colors.bgPanel,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    zIndex: 0,
+  },
   kav: {
     flex: 1,
-    backgroundColor: colors.bgShell,
+    backgroundColor: "transparent",
+    zIndex: 1,
   },
-  backdrop: {
+  scrollLayer: {
     flex: 1,
-    backgroundColor: colors.bgShell,
+    backgroundColor: "transparent",
   },
   sheetScrollContent: {
     flexGrow: 1,

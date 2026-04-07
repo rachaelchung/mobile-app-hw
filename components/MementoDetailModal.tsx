@@ -113,7 +113,7 @@ export function MementoDetailModal({
     >
       <View style={styles.chrome}>
         <ScrollView
-          style={styles.fill}
+          style={styles.scrollFill}
           contentContainerStyle={[
             styles.scrollContent,
             {
@@ -169,6 +169,12 @@ export function MementoDetailModal({
                     value={date}
                     mode="date"
                     display={Platform.OS === "ios" ? "spinner" : "default"}
+                    {...(Platform.OS === "ios"
+                      ? {
+                          themeVariant: "light" as const,
+                          textColor: colors.textPrimary,
+                        }
+                      : {})}
                     onChange={(ev, selected) => {
                       if (ev.type === "dismissed") {
                         setShowPicker(false);
@@ -247,9 +253,9 @@ export function MementoDetailModal({
 const styles = StyleSheet.create({
   chrome: {
     flex: 1,
-    backgroundColor: colors.bgShell,
+    backgroundColor: "transparent",
   },
-  fill: {
+  scrollFill: {
     flex: 1,
   },
   scrollContent: {

@@ -1,8 +1,26 @@
-# Welcome to your Expo app 👋
+# Remember the Time... (Photo Saving App)
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-## Get started
+This app is a short memory saving app. Do you ever have that feeling of "I should remember this" in some moments? Take out your phone, snap a quick photo, give it a title, and store it forever. You can always look back at your mementos and remember why you took the photo and what for.
+
+## Features
+
+- Create entries: Take a photo, give it a title and a note and save it to your mementos. Or manually select a photo from your library.
+- Camera: Take photos from a cute pink digicam! Take photos of the world, or even selfies of yourself.
+- Storage: Entries store and load even after quit and re-launch. Mementos are stored only on your device.
+- View memories: Select each photo from the entries view to view the title, note, and date that go along with it
+- Edit/delete: edit the note/title/or date or delete an entry, also deleting its image.
+- Permission: The app requests camera and photo library permission to access these things.
+
+## Screens & Navigation
+
+| Screen | Purpose |
+|--------|---------|
+| Camera (index.tsx) | Camera functionality using expo-camera, including a control to switch between front- and back-facing cameras. There is an aesthetic overlay on the camera screen |
+| Mementos (mementos.tsx) | A place to see all moments images and notes stored in one place. Clicking on a memory brings up the info in a modal on the app while the screen gallery just displays each moment as an individual photo |
+
+## Running the App
 
 1. Install dependencies
 
@@ -16,35 +34,13 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+3. Download ExpoGo on your phone
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+4. Scan the QR code with your phone. Your phone **MUST** have ExpoGo downloaded on it already.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+5. Start saving memories!
 
-## Get a fresh project
+*note: this app has only been tested on iOS. Using on other phone softwares is likely to have varying results*
 
-When you're ready, run:
 
-```bash
-npm run reset-project
-```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
